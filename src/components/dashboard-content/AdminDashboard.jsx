@@ -9,7 +9,7 @@ import CourseManagement  from './ManageCourses'
 
 export default function AdminDashboard() {
     const [activePage, setActivePage] = useState("dashboard")
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+ 
 
   const renderActivePage = () => {
     switch (activePage) {

@@ -1,11 +1,15 @@
 
 
-import AdminDashboard from './components/AdminDashboard'
+
 import { persistQueryClient } from '@tanstack/react-query-persist-client'
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { RouterProvider } from 'react-router-dom'
+import router from './routes/MainRoutes'
+
 function App() {
- 
+ // In your App.js or main component
+
   
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -25,9 +29,12 @@ function App() {
     persister: localStoragePersister,
   })
 
+
+  
   return (
     <QueryClientProvider client={queryClient} >
-      <AdminDashboard />
+      {/* <AdminDashboard /> */}
+      <RouterProvider router={router} />
     </QueryClientProvider>
   )
 }

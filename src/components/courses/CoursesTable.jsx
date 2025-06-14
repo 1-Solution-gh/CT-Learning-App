@@ -1,9 +1,22 @@
-"use client"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal, Eye, Edit, Trash2, Paperclip } from "lucide-react"
+"use client";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontal, Eye, Edit, Trash2, Paperclip } from "lucide-react";
+import { useFetchCourses } from "@/hooks/useFetchCourses";
 
 export const CourseTable = ({
   courses,
@@ -13,6 +26,13 @@ export const CourseTable = ({
   handleViewCourseDetails,
   handleDeleteCourse,
 }) => {
+
+
+  const {data, isPending , error} = useFetchCourses ()
+  console.log("Courses data:", data)
+  // console.log("Loading status:", isLoading)
+  console.log("Error:", error)
+  
   return (
     <div className="rounded-md border">
       <Table>
@@ -25,7 +45,7 @@ export const CourseTable = ({
             <TableHead>Approval</TableHead>
             <TableHead>Price</TableHead>
             <TableHead>Attachments</TableHead>
-            {/* {activeTab === "approved" && <TableHead>Rating</TableHead>} */}
+          
             {activeTab === "approved" && <TableHead>Enrollments</TableHead>}
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
@@ -42,7 +62,9 @@ export const CourseTable = ({
                   />
                   <div>
                     <div className="font-medium">{course.title}</div>
-                    <div className="text-sm text-muted-foreground">{course.duration}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {course.duration}
+                    </div>
                   </div>
                 </div>
               </TableCell>
@@ -51,7 +73,9 @@ export const CourseTable = ({
                 <Badge variant="outline">{course.category}</Badge>
               </TableCell>
               <TableCell>{getStatusBadge(course.status)}</TableCell>
-              <TableCell>{getApprovalStatusBadge(course.approvalStatus)}</TableCell>
+              <TableCell>
+                {getApprovalStatusBadge(course.approvalStatus)}
+              </TableCell>
               <TableCell>
                 {course.price > 0 ? (
                   <span className="font-medium">${course.price}</span>
@@ -63,7 +87,9 @@ export const CourseTable = ({
                 {course.attachments && course.attachments.length > 0 ? (
                   <div className="flex items-center gap-1">
                     <Paperclip className="h-3 w-3" />
-                    <span className="text-sm">{course.attachments.length} files</span>
+                    <span className="text-sm">
+                      {course.attachments.length} files
+                    </span>
                   </div>
                 ) : (
                   <span className="text-muted-foreground text-sm">None</span>
@@ -81,7 +107,9 @@ export const CourseTable = ({
                   )}
                 </TableCell>
               )} */}
-              {activeTab === "approved" && <TableCell>{course.enrollments.toLocaleString()}</TableCell>}
+              {activeTab === "approved" && (
+                <TableCell>{course.enrollments.toLocaleString()}</TableCell>
+              )}
               <TableCell className="text-right">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -90,15 +118,22 @@ export const CourseTable = ({
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => handleViewCourseDetails(course.id)}>
+                    <DropdownMenuItem
+                      onClick={() => handleViewCourseDetails(course.id)}
+                    >
                       <Eye className="mr-2 h-4 w-4" />
-                      {course.approvalStatus === "pending" ? "Review Course" : "View Details"}
+                      {course.approvalStatus === "pending"
+                        ? "Review Course"
+                        : "View Details"}
                     </DropdownMenuItem>
                     <DropdownMenuItem>
                       <Edit className="mr-2 h-4 w-4" />
                       Edit Course
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleDeleteCourse(course.id)} className="text-red-600">
+                    <DropdownMenuItem
+                      onClick={() => handleDeleteCourse(course.id)}
+                      className="text-red-600"
+                    >
                       <Trash2 className="mr-2 h-4 w-4" />
                       Delete
                     </DropdownMenuItem>
@@ -110,5 +145,5 @@ export const CourseTable = ({
         </TableBody>
       </Table>
     </div>
-  )
-}
+  );
+};

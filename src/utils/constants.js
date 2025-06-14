@@ -1,1 +1,2 @@
-export const BASE_URL = "https://onegympos.com/api"
+export const BASE_URL = "https://api.ctedu.site"
+

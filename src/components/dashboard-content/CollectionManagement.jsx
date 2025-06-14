@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-// import PropTypes from 'prop-types'
+import { useForm } from "react-hook-form"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -30,6 +30,7 @@ import {
   Folder,
   FolderOpen,
 } from "lucide-react"
+import { useFetchModules, usePostModule } from "@/hooks/useModulesActions"
 
 const collectionsData = [
   {
@@ -93,6 +94,7 @@ const collectionsData = [
 ]
 
 export function CollectionManagement() {
+  const {data:modules} = useFetchModules()
   const [collections, setCollections] = useState(collectionsData)
   const [isAddCollectionOpen, setIsAddCollectionOpen] = useState(false)
   const [isEditCollectionOpen, setIsEditCollectionOpen] = useState(false)
@@ -101,16 +103,25 @@ export function CollectionManagement() {
   const [selectedCollectionId, setSelectedCollectionId] = useState(null)
   const [expandedCollections, setExpandedCollections] = useState([1, 2])
 
-  const [newCollection, setNewCollection] = useState({
-    name: "",
-    description: "",
-    color: "#3b82f6",
+  const {mutate, isPending} = usePostModule()
+
+  // React Hook Form setup
+  const { register: registerNewCollection, handleSubmit: handleSubmitNewCollection, reset: resetNewCollection } = useForm({
+    defaultValues: {
+      name: "",
+      description: "",
+      color: "#3b82f6"
+    }
   })
 
-  const [newSubcollection, setNewSubcollection] = useState({
-    name: "",
-    description: "",
+  const { register: registerSubcollection, handleSubmit: handleSubmitSubcollection, reset: resetSubcollection } = useForm({
+    defaultValues: {
+      name: "",
+      description: ""
+    }
   })
+
+  const { register: registerEditCollection, handleSubmit: handleSubmitEditCollection, reset: resetEditCollection } = useForm()
 
   const toggleCollectionExpanded = (collectionId) => {
     setExpandedCollections((prev) =>
@@ -118,46 +129,28 @@ export function CollectionManagement() {
     )
   }
 
-  const handleAddCollection = () => {
-    if (newCollection.name.trim()) {
-      const collection = {
-        id: Math.max(...collections.map((c) => c.id)) + 1,
-        name: newCollection.name,
-        description: newCollection.description,
-        coursesCount: 0,
-        color: newCollection.color,
-        subcollections: [],
-        isActive: true,
-        createdDate: new Date().toISOString().split("T")[0],
-      }
-      setCollections([...collections, collection])
-      setNewCollection({ name: "", description: "", color: "#3b82f6" })
-      setIsAddCollectionOpen(false)
-    }
+  const onSubmitNewCollection = (data) => {
+    mutate(data)
+    setIsAddCollectionOpen(false)
+    resetNewCollection()
   }
 
-  const handleEditCollection = () => {
+  const onSubmitEditCollection = (data) => {
     if (editingCollection) {
-      setCollections(collections.map((col) => (col.id === editingCollection.id ? editingCollection : col)))
+      setCollections(collections.map((col) => 
+        col.id === editingCollection.id ? {...col, ...data} : col
+      ))
       setIsEditCollectionOpen(false)
       setEditingCollection(null)
+      resetEditCollection()
     }
   }
 
-  const handleDeleteCollection = (collectionId) => {
-    setCollections(collections.filter((col) => col.id !== collectionId))
-  }
-
-  const handleToggleCollectionStatus = (collectionId) => {
-    setCollections(collections.map((col) => (col.id === collectionId ? { ...col, isActive: !col.isActive } : col)))
-  }
-
-  const handleAddSubcollection = () => {
-    if (newSubcollection.name.trim() && selectedCollectionId) {
+  const onSubmitSubcollection = (data) => {
+    if (selectedCollectionId) {
       const subcollection = {
         id: Math.max(...collections.flatMap((c) => c.subcollections.map((s) => s.id))) + 1,
-        name: newSubcollection.name,
-        description: newSubcollection.description,
+        ...data,
         coursesCount: 0,
         isActive: true,
       }
@@ -168,10 +161,18 @@ export function CollectionManagement() {
         ),
       )
 
-      setNewSubcollection({ name: "", description: "" })
       setIsAddSubcollectionOpen(false)
       setSelectedCollectionId(null)
+      resetSubcollection()
     }
+  }
+
+  const handleDeleteCollection = (collectionId) => {
+    setCollections(collections.filter((col) => col.id !== collectionId))
+  }
+
+  const handleToggleCollectionStatus = (collectionId) => {
+    setCollections(collections.map((col) => (col.id === collectionId ? { ...col, isActive: !col.isActive } : col)))
   }
 
   const handleDeleteSubcollection = (collectionId, subcollectionId) => {
@@ -184,6 +185,7 @@ export function CollectionManagement() {
     )
   }
 
+  console.log("data", modules)
   const totalCollections = collections.length
   const totalSubcollections = collections.reduce((sum, col) => sum + col.subcollections.length, 0)
   const totalCourses = collections.reduce((sum, col) => sum + col.coursesCount, 0)
@@ -271,53 +273,52 @@ export function CollectionManagement() {
                 </Button>
               </DialogTrigger>
               <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Add New Module</DialogTitle>
-                  <DialogDescription>Create a new course Module</DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="collection-name">Module Name</Label>
-                    <Input
-                      id="collection-name"
-                      value={newCollection.name}
-                      onChange={(e) => setNewCollection({ ...newCollection, name: e.target.value })}
-                      placeholder="Enter module name"
-                    />
+                <form onSubmit={handleSubmitNewCollection(onSubmitNewCollection)}>
+                  <DialogHeader>
+                    <DialogTitle>Add New Module</DialogTitle>
+                    <DialogDescription>Create a new course Module</DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="name">Module Name</Label>
+                      <Input
+                        id="name"
+                        {...registerNewCollection("name", { required: true })}
+                        placeholder="Enter module name"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="description">Description</Label>
+                      <Textarea
+                        id="description"
+                        {...registerNewCollection("description")}
+                        placeholder="Enter collection description"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="color">Color</Label>
+                      <Input
+                        id="color"
+                        type="color"
+                        {...registerNewCollection("color")}
+                        className="w-20 h-10"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <Label htmlFor="collection-description">Description</Label>
-                    <Textarea
-                      id="collection-description"
-                      value={newCollection.description}
-                      onChange={(e) => setNewCollection({ ...newCollection, description: e.target.value })}
-                      placeholder="Enter collection description"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="collection-color">Color</Label>
-                    <Input
-                      id="collection-color"
-                      type="color"
-                      value={newCollection.color}
-                      onChange={(e) => setNewCollection({ ...newCollection, color: e.target.value })}
-                      className="w-20 h-10"
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsAddCollectionOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleAddCollection}>Add Module</Button>
-                </DialogFooter>
+                  <DialogFooter>
+                    <Button type="button" variant="outline" onClick={() => setIsAddCollectionOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button type="submit">Add Module</Button>
+                  </DialogFooter>
+                </form>
               </DialogContent>
             </Dialog>
           </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {collections.map((collection) => (
+            {modules?.map((collection) => (
               <div key={collection.id} className="border rounded-lg p-4">
                 <Collapsible
                   open={expandedCollections.includes(collection.id)}
@@ -331,11 +332,9 @@ export function CollectionManagement() {
                         ) : (
                           <ChevronRight className="h-4 w-4" />
                         )}
-                        <div className="w-4 h-4 rounded-full" style={{ backgroundColor: collection.color }} />
                         <span className="font-medium text-lg">{collection.name}</span>
-                        <Badge variant="secondary">{collection.coursesCount} courses</Badge>
-                        <Badge variant={collection.isActive ? "default" : "secondary"}>
-                          {collection.isActive ? "Active" : "Inactive"}
+                        <Badge variant={collection.status ? "default" : "secondary"}>
+                          {collection.status ? "Active" : "Inactive"}
                         </Badge>
                       </Button>
                     </CollapsibleTrigger>
@@ -369,7 +368,7 @@ export function CollectionManagement() {
                             Edit Module
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleToggleCollectionStatus(collection.id)}>
-                            {collection.isActive ? "Deactivate" : "Activate"}
+                            {collection.status ? "Deactivate" : "Activate"}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => handleDeleteCollection(collection.id)}
@@ -384,9 +383,9 @@ export function CollectionManagement() {
                   </div>
 
                   <p className="text-sm text-muted-foreground mt-2 ml-6">{collection.description}</p>
-
+{/* 
                   <CollapsibleContent className="mt-4">
-                    {collection.subcollections.length > 0 ? (
+                    {collection?.subcollections.length > 0 ? (
                       <div className="ml-6 space-y-2">
                         <h4 className="font-medium text-sm text-muted-foreground">SubModules:</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -433,7 +432,7 @@ export function CollectionManagement() {
                         No sub-modules yet. Click "Add Sub-Modules to create one.
                       </div>
                     )}
-                  </CollapsibleContent>
+                  </CollapsibleContent> */}
                 </Collapsible>
               </div>
             ))}
@@ -442,7 +441,7 @@ export function CollectionManagement() {
       </Card>
 
       {/* Add Subcollection Dialog */}
-      <Dialog open={isAddSubcollectionOpen} onOpenChange={setIsAddSubcollectionOpen}>
+      {/* <Dialog open={isAddSubcollectionOpen} onOpenChange={setIsAddSubcollectionOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add New Subcollection</DialogTitle>
@@ -455,8 +454,8 @@ export function CollectionManagement() {
               <Label htmlFor="subcollection-name">Subcollection Name</Label>
               <Input
                 id="subcollection-name"
-                value={newSubcollection.name}
-                onChange={(e) => setNewSubcollection({ ...newSubcollection, name: e.target.value })}
+                // value={newSubcollection.name}
+                // onChange={(e) => setNewSubcollection({ ...newSubcollection, name: e.target.value })}
                 placeholder="Enter subcollection name"
               />
             </div>
@@ -477,7 +476,7 @@ export function CollectionManagement() {
             <Button onClick={handleAddSubcollection}>Add Subcollection</Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
 
       {/* Edit Collection Dialog */}
       {editingCollection && (
