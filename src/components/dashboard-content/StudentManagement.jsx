@@ -60,48 +60,44 @@ export function StudentManagement() {
     error,
     isError,
     isLoading
-  } = useFetchStudents("adminmanagestudentsapi.php");
+  } = useFetchStudents("users/students");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStudent, setSelectedStudent] = useState(null);
-  const [students, setStudents] = useState([]);
-  const [statusMenuOpen, setStatusMenuOpen] = useState(false);
+  // const [students, setStudents] = useState([]);
+  // const [statusMenuOpen, setStatusMenuOpen] = useState(false);
 
   // Update students state when studentsData changes
-  useEffect(() => {
-    if (studentsData?.data) {
-      setStudents(studentsData.data);
-    }
-  }, [studentsData]);
+
 
   console.log("studentsData", studentsData);
 
-  const handleStatusChange = (studentId, newStatus) => {
-    setStudents(
-      students.map((student) =>
-        student.id === studentId ? { ...student, status: newStatus } : student
-      )
-    );
-    setStatusMenuOpen(false);
-  };
+  // const handleStatusChange = (studentId, newStatus) => {
+  //   setStudents(
+  //     students.map((student) =>
+  //       student.id === studentId ? { ...student, status: newStatus } : student
+  //     )
+  //   );
+  //   setStatusMenuOpen(false);
+  // };
 
-  const handleDeleteStudent = async (studentId) => {
-    try {
-      // Make API call to delete student
-      const response = await fetch(`/api/students/${studentId}`, {
-        method: "DELETE",
-      });
+  // const handleDeleteStudent = async (studentId) => {
+  //   try {
+  //     // Make API call to delete student
+  //     const response = await fetch(`/api/students/${studentId}`, {
+  //       method: "DELETE",
+  //     });
 
-      if (!response.ok) {
-        throw new Error("Failed to delete student");
-      }
+  //     if (!response.ok) {
+  //       throw new Error("Failed to delete student");
+  //     }
 
-      // Update local state only after successful API call
-      setStudents(students.filter((student) => student.id !== studentId));
-    } catch (error) {
-      console.error("Error deleting student:", error);
-      // Handle error (show error message to user)
-    }
-  };
+  //     // Update local state only after successful API call
+  //     // setStudents(students.filter((student) => student.id !== studentId));
+  //   } catch (error) {
+  //     console.error("Error deleting student:", error);
+  //     // Handle error (show error message to user)
+  //   }
+  // };
 
   const getStatusBadge = (status) => {
     switch (status) {
@@ -114,6 +110,13 @@ export function StudentManagement() {
       default:
         return <Badge>Unknown</Badge>;
     }
+  };
+
+  const getVerifyBadge = (verified) => {
+    if (verified === 0) {
+      return <Badge variant="destructive">Not Verified</Badge>;
+    }
+    return <Badge className="bg-green-100 text-green-800">Verified</Badge>;
   };
 
   if (isLoading) {
@@ -136,7 +139,7 @@ export function StudentManagement() {
   }
 
   // Check if data is empty or undefined
-  const hasStudents = studentsData?.data && studentsData.data.length > 0;
+  const hasStudents = studentsData && studentsData.length > 0;
 
   return (
     <div className="space-y-6">
@@ -194,12 +197,13 @@ export function StudentManagement() {
                     <TableHead>Courses</TableHead>
                     <TableHead>Progress</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead>Verify Status</TableHead>
                     <TableHead>Last Active</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {studentsData.data.map((student) => (
+                  {studentsData.map((student) => (
                     <TableRow key={student.id}>
                       <TableCell>
                         <div>
@@ -226,6 +230,7 @@ export function StudentManagement() {
                         </div>
                       </TableCell>
                       <TableCell>{getStatusBadge(student.status)}</TableCell>
+                      <TableCell>{getVerifyBadge(student.verified)}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">
                         {student.lastActive}
                       </TableCell>
@@ -275,9 +280,9 @@ export function StudentManagement() {
                               icon={
                                 <Circle className="h-5 w-5 text-orange-600" />
                               }
-                              onConfirm={() =>
-                                handleStatusChange(student.id, "inactive")
-                              }
+                              // onConfirm={() =>
+                              //   handleStatusChange(student.id, "inactive")
+                              // }
                             />
 
                             {/* Set Completed */}
@@ -301,9 +306,9 @@ export function StudentManagement() {
                               icon={
                                 <CheckCircle className="h-5 w-5 text-blue-600" />
                               }
-                              onConfirm={() =>
-                                handleStatusChange(student.id, "completed")
-                              }
+                              // onConfirm={() =>
+                              //   handleStatusChange(student.id, "completed")
+                              // }
                             />
 
                             {/* Set Active */}
@@ -327,9 +332,9 @@ export function StudentManagement() {
                               icon={
                                 <UserCheck className="h-5 w-5 text-green-600" />
                               }
-                              onConfirm={() =>
-                                handleStatusChange(student.id, "active")
-                              }
+                              // onConfirm={() =>
+                              //   handleStatusChange(student.id, "active")
+                              // }
                             />
 
                             {/* Delete Student */}
@@ -349,7 +354,7 @@ export function StudentManagement() {
                               cancelText="Cancel"
                               variant="destructive"
                               icon={<Trash2 className="h-5 w-5 text-red-600" />}
-                              onConfirm={() => handleDeleteStudent(student.id)}
+                              // onConfirm={() => handleDeleteStudent(student.id)}
                             />
                           </DropdownMenuContent>
                         </DropdownMenu>

@@ -2,7 +2,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useUser } from "@/hooks/useUser";
 
 const ProtectedRoute = () => {
-  const { user, isAuthenticated, isLoading,  } = useUser();
+  const { admin, isAuthenticated, isLoading,  } = useUser();
 
   console.log("user", isAuthenticated);
 
@@ -10,7 +10,7 @@ const ProtectedRoute = () => {
 
   // const isInitialLoading = isLoading && user === undefined;
 
-  const isAuthReady = !isLoading && user !== undefined;
+  const isAuthReady = !isLoading && admin!== undefined;
 
   if (!isAuthReady) {
     return <div>Loading...</div>;

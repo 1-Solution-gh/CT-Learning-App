@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,17 +8,27 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
-import { DollarSign, Upload, ImageIcon, X, FileText, Plus } from "lucide-react"
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { DollarSign, Upload, ImageIcon, X, FileText, Plus } from "lucide-react";
+// import { useUpdateCourseStatus } from "@/hooks/useCourseAction";
 
 export function AddCourseDialog({ isOpen, onClose, onAddCourse }) {
+
+
+ 
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -27,15 +37,15 @@ export function AddCourseDialog({ isOpen, onClose, onAddCourse }) {
     duration: "",
     price: 0,
     thumbnail: null,
-  })
+  });
 
-  const [attachments, setAttachments] = useState([])
-  const [thumbnailPreview, setThumbnailPreview] = useState("")
-  const [errors, setErrors] = useState({})
+  const [attachments, setAttachments] = useState([]);
+  const [thumbnailPreview, setThumbnailPreview] = useState("");
+  const [errors, setErrors] = useState({});
 
   const categories = [
     "Programming",
-    "Data Science", 
+    "Data Science",
     "Design",
     "Marketing",
     "Business",
@@ -44,65 +54,69 @@ export function AddCourseDialog({ isOpen, onClose, onAddCourse }) {
     "Language",
     "Health & Fitness",
     "Personal Development",
-  ]
+  ];
 
   const handleInputChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
+    setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: "" }))
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
-  }
+  };
 
   const handleThumbnailChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0]
-      setFormData((prev) => ({ ...prev, thumbnail: file }))
+      const file = e.target.files[0];
+      setFormData((prev) => ({ ...prev, thumbnail: file }));
 
       // Create preview URL
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onload = () => {
-        setThumbnailPreview(reader.result)
-      }
-      reader.readAsDataURL(file)
+        setThumbnailPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
-  }
+  };
 
   const handleAttachmentChange = (e) => {
     if (e.target.files) {
-      const newFiles = Array.from(e.target.files)
-      setAttachments((prev) => [...prev, ...newFiles])
+      const newFiles = Array.from(e.target.files);
+      setAttachments((prev) => [...prev, ...newFiles]);
     }
-  }
+  };
 
   const removeAttachment = (index) => {
-    setAttachments((prev) => prev.filter((_, i) => i !== index))
-  }
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const formatFileSize = (bytes) => {
-    if (bytes === 0) return "0 Bytes"
-    const k = 1024
-    const sizes = ["Bytes", "KB", "MB", "GB"]
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
-  }
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return (
+      Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
+    );
+  };
 
   const validateForm = () => {
-    const newErrors = {}
+    const newErrors = {};
 
-    if (!formData.title.trim()) newErrors.title = "Course title is required"
-    if (!formData.description.trim()) newErrors.description = "Course description is required"
-    if (!formData.instructor.trim()) newErrors.instructor = "Instructor name is required"
-    if (!formData.category) newErrors.category = "Category is required"
-    if (!formData.duration.trim()) newErrors.duration = "Duration is required"
-    if (formData.price <= 0) newErrors.price = "Price must be greater than 0"
+    if (!formData.title.trim()) newErrors.title = "Course title is required";
+    if (!formData.description.trim())
+      newErrors.description = "Course description is required";
+    if (!formData.instructor.trim())
+      newErrors.instructor = "Instructor name is required";
+    if (!formData.category) newErrors.category = "Category is required";
+    if (!formData.duration.trim()) newErrors.duration = "Duration is required";
+    if (formData.price <= 0) newErrors.price = "Price must be greater than 0";
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = () => {
-    if (!validateForm()) return
+    if (!validateForm()) return;
 
     const courseData = {
       id: Date.now(), // Simple ID generation
@@ -130,12 +144,12 @@ export function AddCourseDialog({ isOpen, onClose, onAddCourse }) {
         size: formatFileSize(file.size),
         url: URL.createObjectURL(file),
       })),
-    }
+    };
 
-    onAddCourse(courseData)
-    handleReset()
-    onClose()
-  }
+    onAddCourse(courseData);
+    handleReset();
+    onClose();
+  };
 
   const handleReset = () => {
     setFormData({
@@ -146,23 +160,25 @@ export function AddCourseDialog({ isOpen, onClose, onAddCourse }) {
       duration: "",
       price: 0,
       thumbnail: null,
-    })
-    setAttachments([])
-    setThumbnailPreview("")
-    setErrors({})
-  }
+    });
+    setAttachments([]);
+    setThumbnailPreview("");
+    setErrors({});
+  };
 
   const handleClose = () => {
-    handleReset()
-    onClose()
-  }
+    handleReset();
+    onClose();
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-4xl max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>Add New Course</DialogTitle>
-          <DialogDescription>Create a new course and add it directly to the platform</DialogDescription>
+          <DialogDescription>
+            Create a new course and add it directly to the platform
+          </DialogDescription>
         </DialogHeader>
 
         <ScrollArea className="max-h-[60vh]">
@@ -180,7 +196,9 @@ export function AddCourseDialog({ isOpen, onClose, onAddCourse }) {
                     onChange={(e) => handleInputChange("title", e.target.value)}
                     placeholder="Enter course title"
                   />
-                  {errors.title && <p className="text-sm text-red-500">{errors.title}</p>}
+                  {errors.title && (
+                    <p className="text-sm text-red-500">{errors.title}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -188,15 +206,24 @@ export function AddCourseDialog({ isOpen, onClose, onAddCourse }) {
                   <Input
                     id="instructor"
                     value={formData.instructor}
-                    onChange={(e) => handleInputChange("instructor", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("instructor", e.target.value)
+                    }
                     placeholder="Enter instructor name"
                   />
-                  {errors.instructor && <p className="text-sm text-red-500">{errors.instructor}</p>}
+                  {errors.instructor && (
+                    <p className="text-sm text-red-500">{errors.instructor}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="category">Category *</Label>
-                  <Select value={formData.category} onValueChange={(value) => handleInputChange("category", value)}>
+                  <Select
+                    value={formData.category}
+                    onValueChange={(value) =>
+                      handleInputChange("category", value)
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
@@ -208,7 +235,9 @@ export function AddCourseDialog({ isOpen, onClose, onAddCourse }) {
                       ))}
                     </SelectContent>
                   </Select>
-                  {errors.category && <p className="text-sm text-red-500">{errors.category}</p>}
+                  {errors.category && (
+                    <p className="text-sm text-red-500">{errors.category}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -216,10 +245,14 @@ export function AddCourseDialog({ isOpen, onClose, onAddCourse }) {
                   <Input
                     id="duration"
                     value={formData.duration}
-                    onChange={(e) => handleInputChange("duration", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("duration", e.target.value)
+                    }
                     placeholder="e.g., 40 hours, 6 weeks"
                   />
-                  {errors.duration && <p className="text-sm text-red-500">{errors.duration}</p>}
+                  {errors.duration && (
+                    <p className="text-sm text-red-500">{errors.duration}</p>
+                  )}
                 </div>
               </div>
 
@@ -228,11 +261,15 @@ export function AddCourseDialog({ isOpen, onClose, onAddCourse }) {
                 <Textarea
                   id="description"
                   value={formData.description}
-                  onChange={(e) => handleInputChange("description", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("description", e.target.value)
+                  }
                   placeholder="Describe what students will learn in this course"
                   className="min-h-[100px]"
                 />
-                {errors.description && <p className="text-sm text-red-500">{errors.description}</p>}
+                {errors.description && (
+                  <p className="text-sm text-red-500">{errors.description}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -245,12 +282,19 @@ export function AddCourseDialog({ isOpen, onClose, onAddCourse }) {
                     step="0.01"
                     min="0"
                     value={formData.price}
-                    onChange={(e) => handleInputChange("price", Number.parseFloat(e.target.value) || 0)}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "price",
+                        Number.parseFloat(e.target.value) || 0
+                      )
+                    }
                     className="pl-8"
                     placeholder="0.00"
                   />
                 </div>
-                {errors.price && <p className="text-sm text-red-500">{errors.price}</p>}
+                {errors.price && (
+                  <p className="text-sm text-red-500">{errors.price}</p>
+                )}
               </div>
             </div>
 
@@ -279,8 +323,12 @@ export function AddCourseDialog({ isOpen, onClose, onAddCourse }) {
                   >
                     <div className="flex flex-col items-center gap-1">
                       <Upload className="h-4 w-4" />
-                      <span className="text-sm font-medium">Upload thumbnail</span>
-                      <span className="text-xs text-muted-foreground">PNG, JPG or GIF up to 2MB</span>
+                      <span className="text-sm font-medium">
+                        Upload thumbnail
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        PNG, JPG or GIF up to 2MB
+                      </span>
                     </div>
                     <Input
                       id="thumbnail-upload"
@@ -320,17 +368,27 @@ export function AddCourseDialog({ isOpen, onClose, onAddCourse }) {
               {attachments.length > 0 ? (
                 <div className="space-y-2">
                   {attachments.map((file, index) => (
-                    <div key={index} className="flex items-center justify-between rounded-lg border p-3">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between rounded-lg border p-3"
+                    >
                       <div className="flex items-center space-x-3">
                         <div className="flex h-8 w-8 items-center justify-center rounded-md bg-muted">
                           <FileText className="h-4 w-4" />
                         </div>
                         <div>
                           <p className="text-sm font-medium">{file.name}</p>
-                          <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {formatFileSize(file.size)}
+                          </p>
                         </div>
                       </div>
-                      <Button variant="ghost" size="icon" onClick={() => removeAttachment(index)} className="h-8 w-8">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeAttachment(index)}
+                        className="h-8 w-8"
+                      >
                         <X className="h-4 w-4" />
                       </Button>
                     </div>
@@ -340,7 +398,9 @@ export function AddCourseDialog({ isOpen, onClose, onAddCourse }) {
                 <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
                   <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
                   <p>No course materials added yet</p>
-                  <p className="text-xs">Add PDFs, videos, or other learning materials</p>
+                  <p className="text-xs">
+                    Add PDFs, videos, or other learning materials
+                  </p>
                 </div>
               )}
             </div>
@@ -355,5 +415,5 @@ export function AddCourseDialog({ isOpen, onClose, onAddCourse }) {
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

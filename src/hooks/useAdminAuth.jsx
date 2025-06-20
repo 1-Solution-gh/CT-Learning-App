@@ -6,7 +6,7 @@ import { useUser } from "./useUser";
 
 const postLoginData = async ({ email, password }) => {
   const response = await axios.post(
-    `${BASE_URL}/adminloginapi.php`,
+    `${BASE_URL}//login/instructor`,
     {
       email,
       password,
@@ -28,20 +28,29 @@ export const useAdminAuth = () => {
 
   const { mutate, error, isError, isPending } = useMutation({
     mutationFn: ({ email, password }) => postLoginData({ email, password }),
-    onSuccess: (data) => {
-      console.log("Login Success:", data);
+    onSuccess: (response) => {
+      console.log("Login Success:", response);
 
-      if (data.status === "success" && data.user) {
-        setUser(data.user);
+      if (response.message === "Login successful" && response.user) {
+        // Store token in localStorage
+        localStorage.setItem("token", response.token);
+        
+        // Set user data
+        setUser({
+          id: response.user.id,
+          role: response.user.role,
+          name: response.user.name
+        });
+        
         navigate("/dashboard", { replace: true });
       } else {
-        throw new Error(data.message || "Login failed");
+        throw new Error(response.message || "Login failed");
       }
     },
     onError: (error) => {
       console.error("Login Error:", error);
 
-      queryClient.removeQueries(["user"]);
+      queryClient.removeQueries(["ct-admin"]);
       queryClient.removeQueries(["auth"]);
     },
 

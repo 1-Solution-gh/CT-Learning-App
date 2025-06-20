@@ -14,15 +14,15 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Search, Bell, Menu } from "lucide-react"
-import { useUser } from "@/hooks/useUser"
+// import { useUser } from "@/hooks/useUser"
 import { useNavigate } from "react-router-dom"
 
 export function TopBar({ sidebarOpen, setSidebarOpen }) {
   const [searchQuery, setSearchQuery] = useState("")
-  const {user, clearUser} = useUser ()
+  // const {user, clearUser} = useUser ()
 const navigate =   useNavigate()
 
-  console.log("user", user)
+  // console.log("user", user)
 
   return (
     <header className="bg-card border-b px-6 py-4">
@@ -61,8 +61,8 @@ const navigate =   useNavigate()
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{user.name || "user"}</p>
-                  <p className="text-xs leading-none text-muted-foreground">{user.email  || ""}</p>
+                  <p className="text-sm font-medium leading-none">{ "user"}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{ "kwofie286@gmail.com"}</p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
@@ -70,7 +70,7 @@ const navigate =   useNavigate()
               <DropdownMenuItem onClick={() => navigate("/dashboard/settings")}>Account Settings</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => {
-                clearUser()
+                // clearUser()
               }}>Log out</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

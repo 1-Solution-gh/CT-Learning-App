@@ -26,8 +26,10 @@ export function InstructorManagement() {
   const [selectedApplication, setSelectedApplication] = useState(null)
   const [selectedInstructor, setSelectedInstructor] = useState(null)
 
-  const {data:instructors , error, isError, isLoading} = useFetchUsers("adminmanageinstructorsapi.php")
+  const {data:instructors , error, isError, isLoading} = useFetchUsers("instructor-applications")
   const { mutate, isPending } = useHandleInstructorApplication();
+
+  console.log("instructor", instructors)
 
 
   if (isLoading) {
@@ -44,15 +46,11 @@ export function InstructorManagement() {
 
 
 
-  const pendingData = instructors?.data?.filter((instructor) => instructor.status === "pending")
-  const approvedData = instructors?.data?.filter((instructor) => instructor.status === "approved")
+  const pendingData = instructors?.filter((instructor) => instructor.status === "pending")
+  const approvedData = instructors?.filter((instructor) => instructor.status === "approved")
 
   // console.log("approvedData)", approvedData)
 
-  const handleAcceptApplication = (applicationId) => {
-    // console.log("aplli" , applicationId)
-    mutate({id: applicationId, action:"approve"})
-  }
 
   // const handleDeclineApplication = (applicationId) => {
   //   // Implementation will need to be updated once backend API is available
@@ -239,6 +237,7 @@ export function InstructorManagement() {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead>Profile</TableHead>
                       <TableHead>Instructor</TableHead>
                       <TableHead>Course Title</TableHead>
                       <TableHead>Experience( year )</TableHead>
@@ -250,6 +249,15 @@ export function InstructorManagement() {
                   <TableBody>
                     {approvedData?.map((instructor) => (
                       <TableRow key={instructor.id}>
+                        <TableCell>
+                          <div className="flex items-center">
+                            <img 
+                              src={instructor.profile_image }
+                              alt={`${instructor.full_name}'s profile`}
+                              className="h-10 w-10 rounded-full object-cover"
+                            />
+                          </div>
+                        </TableCell>
                         <TableCell>
                           <div>
                             <div className="font-medium" title={instructor.full_name}>
@@ -274,7 +282,6 @@ export function InstructorManagement() {
                         <TableCell>
                           <div className="text-sm text-muted-foreground">{instructor.years_experience}</div>
                         </TableCell>
-                        <TableCell>{instructor.status}</TableCell>
                         <TableCell>{instructor.applied_at}</TableCell>
                         <TableCell className="text-right">
 
@@ -368,7 +375,7 @@ export function InstructorManagement() {
         <ApplicationDialog
         selectedApplication={selectedApplication}
         setSelectedApplication={setSelectedApplication}
-        handleAcceptApplication={handleAcceptApplication}
+      
         isActionLoading={isPending}
       />
       )}

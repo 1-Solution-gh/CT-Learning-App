@@ -6,8 +6,8 @@ export const useUser = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   
-  const { data: user, isLoading, error , isSuccess} = useQuery({
-    queryKey: ['user'],
+  const { data: admin, isLoading, error, isSuccess } = useQuery({
+    queryKey: ['ct-admin'],
     queryFn: () => {
       return null;
     },
@@ -24,25 +24,25 @@ export const useUser = () => {
   //   // navigate('/');
   // }
 
-  const isAuthenticated = !!user && !!user.id;
-  const isAuthReady = user !== undefined || isSuccess;
+  const isAuthenticated = !!admin && !!admin.id;
+  const isAuthReady = admin !== undefined || isSuccess;
   const updateUser = (userData) => {
-    queryClient.setQueryData(['user'], userData);
+    queryClient.setQueryData(['ct-admin'], userData);
   };
 
   const clearUser = () => {
-    queryClient.removeQueries(['user']);
+    queryClient.removeQueries(['ct-admin']);
     queryClient.removeQueries(['auth']);
     navigate('/');
   };
 
   // save user auth in browser 
   const setUser = (userData) => {
-    queryClient.setQueryData(['user'], userData);
+    queryClient.setQueryData(['ct-admin'], userData);
   };
 
   return {
-    user,
+    admin,
     isAuthenticated,
     isLoading,
     isAuthReady,
